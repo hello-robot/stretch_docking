@@ -458,6 +458,7 @@ def main(exposure, noviz=False):
         print(f"  Time: {time.time() - start_time} seconds")
         print(f"  Voltage: {np.mean(power_history['voltage'])} V")
         print(f"  Current: {np.mean(power_history['current'])} A")
+        print(f"  Temperature: {np.mean(power_history['temperature'])} °C")
         print(f"  Charge Current: {np.mean(power_history['charge_current'])} A")
         print(f"  Is Charger Connected: {power_history['charger_connected']}")
         print(f"  Is Charger Charging: {power_history['charger_is_charging']}")
