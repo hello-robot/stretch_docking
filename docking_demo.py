@@ -224,7 +224,17 @@ def main(exposure, noviz=False):
         camera = dc.D435i(exposure=exposure)
 
         time.sleep(1.0)
-        
+
+        start_time = time.time()
+        power_history = {
+            'voltage': [],
+            'current': [],
+            'temperature': [],
+            'charge_current': [],
+            'charger_connected': None,
+            'charger_is_charging': None,
+        }
+
         robot = rb.Robot()
         robot.startup()
         move_to_initial_pose(robot)
@@ -427,6 +437,14 @@ def main(exposure, noviz=False):
                 pp.pprint(cmd)
                 controller.set_command(cmd)
 
+            # collect power statistics
+            power_history['voltage'].append(robot.pimu.status['voltage'])
+            power_history['current'].append(robot.pimu.status['current'])
+            power_history['temperature'].append(robot.pimu.status['temp'])
+            power_history['charge_current'].append(robot.pimu.status['current_charge'])
+            power_history['charger_connected'] = robot.pimu.status['charger_connected']
+            power_history['charger_is_charging'] = robot.pimu.status['charger_is_charging']
+
             if not noviz:
                 cv2.imshow('Features Used for Visual Servoing', fit_image_to_screen(color_image))
                 cv2.waitKey(1)
@@ -436,7 +454,14 @@ def main(exposure, noviz=False):
                 loop_timer.pretty_print()
 
     finally:
-
+        print("Statistics:")
+        print(f"  Time: {time.time() - start_time} seconds")
+        print(f"  Voltage: {np.mean(power_history['voltage'])} V")
+        print(f"  Current: {np.mean(power_history['current'])} A")
+        print(f"  Temperature: {np.mean(power_history['temperature'])} °C")
+        print(f"  Charge Current: {np.mean(power_history['charge_current'])} A")
+        print(f"  Is Charger Connected: {power_history['charger_connected']}")
+        print(f"  Is Charger Charging: {power_history['charger_is_charging']}")
         robot.stop()
 
 if __name__ == '__main__':
