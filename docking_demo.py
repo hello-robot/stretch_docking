@@ -12,6 +12,7 @@ from hello_helpers import hello_misc as hm
 import argparse
 import loop_timer as lt
 import pprint as pp
+from image_processing_helpers import fit_image_to_screen
 
 def compute_visual_servoing_features(center_xyz, midline_xyz, camera_info):
     if (center_xyz is None) or (midline_xyz is None):
@@ -426,7 +427,7 @@ def main(exposure):
                 pp.pprint(cmd)
                 controller.set_command(cmd)
 
-            cv2.imshow('Features Used for Visual Servoing', color_image)
+            cv2.imshow('Features Used for Visual Servoing', fit_image_to_screen(color_image))
             cv2.waitKey(1)
 
             loop_timer.end_of_iteration()
