@@ -12,6 +12,7 @@ from hello_helpers import hello_misc as hm
 import argparse
 import loop_timer as lt
 import pprint as pp
+from image_processing_helpers import fit_image_to_screen
 
 def compute_visual_servoing_features(center_xyz, midline_xyz, camera_info):
     if (center_xyz is None) or (midline_xyz is None):
@@ -214,7 +215,7 @@ def move_to_initial_pose(robot):
     robot.wait_command()
         
 
-def main(exposure):
+def main(exposure, noviz=False):
 
     try:
         pix_per_m_av = None
@@ -426,8 +427,9 @@ def main(exposure):
                 pp.pprint(cmd)
                 controller.set_command(cmd)
 
-            cv2.imshow('Features Used for Visual Servoing', color_image)
-            cv2.waitKey(1)
+            if not noviz:
+                cv2.imshow('Features Used for Visual Servoing', fit_image_to_screen(color_image))
+                cv2.waitKey(1)
 
             loop_timer.end_of_iteration()
             if print_timing: 
@@ -444,11 +446,13 @@ if __name__ == '__main__':
         description='This application provides a demonstration of using visual servoing to autonomously dock with the official Hello Robot docking station.')
 
     parser.add_argument('-e', '--exposure', action='store', type=str, default='auto', help=f'Set the D435 exposure to {dh.exposure_keywords} or an integer in the range {dh.exposure_range}') 
-    
+    parser.add_argument('-n', '--noviz', nargs='?', default=False, const=True)
+
     args = parser.parse_args()
     exposure = args.exposure
+    noviz = args.noviz
 
     if not dh.exposure_argument_is_valid(exposure):
         raise argparse.ArgumentTypeError(f'The provided exposure setting, {exposure}, is not a valide keyword, {dh.exposure_keywords}, or is outside of the allowed numeric range, {dh.exposure_range}.')    
     
-    main(exposure)
+    main(exposure, noviz)
